@@ -1,4 +1,4 @@
-# jenkins-shell
+# 自动化部署脚本
 push-jar-to-deploydir.sh 配合jenkins 实现自动化部署脚本
 config/push_jar_to_deploydir.conf 'push-jar-to-deploydir.sh' 的配置文件
 
