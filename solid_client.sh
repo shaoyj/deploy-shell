@@ -1,4 +1,4 @@
-#!/bin/bash -
+#!/bin/bash
 #Program:
 #            solid_client shell
 #descritopn
@@ -33,9 +33,9 @@ export NC='\e[0m'
 is_exist_file()
 {
     if [[ ! -f $1 ]];then
-	        echo -e "${RED}'$1' does not exist ${NC}" >&2
-	        exit 1
-	fi
+	echo -e "${RED}'$1' does not exist ${NC}" >&2
+	exit 1
+    fi
 }
 
 
@@ -90,13 +90,13 @@ init()
     #Native IP
     if [[ ! -f ${HOME}/.ip || "-force" == "${FORCE}" ]]; then
         wget ${CONF_DOMAIN}/deploy/ip -O ${HOME}/.ip
-	fi
+    fi
 
     # Initialize the directory
     #Project directory
     if [[ ! -d ${SERVER_HOME}/${tomName}/ ]]; then
 	  mkdir -p ${SERVER_HOME}/${tomName}/
-	fi
+    fi
 
     #config  bin
     if [[ ! -d ${SERVER_HOME}/${tomName}/bin/ || "-force" == "${FORCE}" ]]; then
@@ -107,28 +107,28 @@ init()
           wget ${CONF_DOMAIN}/deploy/shell/${tomName}/${tomName}.sh -O ${SERVER_HOME}/${tomName}/bin/${tomName}.sh
           chmod 700 ${SERVER_HOME}/${tomName}/bin/${tomName}.sh
         fi
-	fi
+    fi
 
     #config  directory
     # Download 'spring boot admin' configuration, external exposure interface
     if [[ ! -d ${SERVER_HOME}/${tomName}/config/ ]]; then
 	  mkdir -p ${SERVER_HOME}/${tomName}/config/
-	fi
+    fi
     #Overlay configuration
     if [[ ! -f ${SERVER_HOME}/${tomName}/config/application.properties || "-force" == "${FORCE}" ]]; then
         local spring_boot_admin_result=$(curl -s ${CONF_DOMAIN}/deploy/admin?serverName=${tomName})
         if [[ "" != "${spring_boot_admin_result}" ]]; then
             echo -e ${spring_boot_admin_result} >${SERVER_HOME}/${tomName}/config/application.properties
         fi
-	fi
+    fi
 
-	#Download 'JVM' configuration
+    #Download 'JVM' configuration
     if [[ ! -f ${SERVER_HOME}/${tomName}/config/jvm || "-force" == "${FORCE}" ]]; then
         local jvm_params=$(curl -s ${CONF_DOMAIN}/deploy/jvm_params?serverName=${tomName})
         if [[ "" != "${jvm_params}" ]]; then
             echo ${jvm_params} >${SERVER_HOME}/${tomName}/config/jvm
         fi
-	fi
+    fi
 
     resultInfo $? "${tomName} init result :";
 }
@@ -137,7 +137,7 @@ init()
 install()
 {
     local tomName=$1
-	#校验目录是否存在
+    #校验目录是否存在
     if [[ -d ${SERVER_HOME}/${tomName}/ ]]; then
 	    echo -e "${RED}${tomName} already exists ${NC}" >&2
 	    exit 1
@@ -145,7 +145,7 @@ install()
 	   #Check whether the project exists or not
 	   if [[ ! -n $(curl -s ${CONF_DOMAIN}/deploy/exist?serverName=${tomName}) ]]; then
 	        echo -e "${RED}${tomName} is not configured on the deployment server. ${NC}" >&2
-            exit 1
+                exit 1
 	   else
 	        #Get the real name of the project
 	        local RES_TOM_NAME=$(echo ${tomName} |awk -F '_' '{print $1}')
@@ -157,7 +157,7 @@ install()
 
 	   #result
 	   resultInfo $? "${tomName} install result :";
-	fi
+   fi
 }
 
 # 1: tomcatName
@@ -165,7 +165,7 @@ pullRoot()
 {
     local tomName=$1
     #Get the real name of the project
-	local RES_TOM_NAME=$(echo ${tomName} |awk -F '_' '{print $1}')
+    local RES_TOM_NAME=$(echo ${tomName} |awk -F '_' '{print $1}')
     #Cover jar package
     wget ${JAR_ADDRESS}/deploy/jar/${RES_TOM_NAME}/${RES_TOM_NAME}.jar -O ${SERVER_HOME}/${tomName}/${tomName}.jar
 
@@ -182,14 +182,14 @@ killTomcat()
         exit 1
     fi
     kill -9 ${pid}
-	resultInfo $? "${tomName} stop result :";
+    resultInfo $? "${tomName} stop result :";
 }
 
 #startTomcat 1: tomcatName
 startTomcat()
 {
     local tomName=$1
-	#Get pid
+    #Get pid
     local pid=$(getServerPid ${tomName})
     #Verify that the service is running
     if [[ ${pid} -gt 1 ]];then
@@ -209,7 +209,7 @@ startTomcat()
          nohup java ${jvm_params} -jar ./${tomName}.jar >./logs/${tomName}_catalina.log 2>&1 &
     fi
 
-	resultInfo $? "${tomName} start result :";
+    resultInfo $? "${tomName} start result :";
 }
 
 #restart 1: tomcatName
@@ -222,9 +222,9 @@ restart()
      else
         echo -e "${RED}${tomName} No Running. ${NC}" >&2
     fi
-	startTomcat ${tomName} >/dev/null
+    startTomcat ${tomName} >/dev/null
 
-	resultInfo $? "${tomName} restart result :";
+    resultInfo $? "${tomName} restart result :";
 }
 
 #check tomcat
@@ -253,12 +253,12 @@ backUpTomcat()
     local tomName=$1
     is_exist_file ${SERVER_HOME}/${tomName}/${tomName}.jar
     #Create a backup directory does not exist
-	if [ ! -d ${SERVER_HOME}/${tomName}/history/backup/ ]; then
+    if [ ! -d ${SERVER_HOME}/${tomName}/history/backup/ ]; then
 	  mkdir -p ${SERVER_HOME}/${tomName}/history/backup/
-	fi
-	#Backup
-	if [[ -f ${SERVER_HOME}/${tomName}/${tomName}.jar ]]; then
-	    cp ${SERVER_HOME}/${tomName}/${tomName}.jar ${SERVER_HOME}/${tomName}/history/backup/
+    fi
+    #Backup
+    if [[ -f ${SERVER_HOME}/${tomName}/${tomName}.jar ]]; then
+	cp ${SERVER_HOME}/${tomName}/${tomName}.jar ${SERVER_HOME}/${tomName}/history/backup/
         cd ${SERVER_HOME}/${tomName}/history/backup/
         tar -zcf ${tomName}.`date '+%Y%m%d_%H%M%S'`.tar.gz ./${tomName}.jar
         rm ./${tomName}.jar
@@ -267,7 +267,7 @@ backUpTomcat()
         resultInfo $? "${tomName} backUp result :";
     else
         echo -e "${blue}'${SERVER_HOME}/${tomName}/${tomName}.jar' skip backup ${NC}"
-	fi
+    fi
 }
 
 #update
@@ -286,13 +286,13 @@ update()
     if [[ -n ${pid} ]];then
         killTomcat ${tomName} >/dev/null
     fi
-	#backup
-	backUpTomcat ${tomName} >/dev/null
-	#pull
-	pullRoot ${tomName} >/dev/null
-	#start
-	startTomcat ${tomName} >/dev/null
-	resultInfo $? "${tomName} update result :";
+    #backup
+    backUpTomcat ${tomName} >/dev/null
+    #pull
+    pullRoot ${tomName} >/dev/null
+    #start
+    startTomcat ${tomName} >/dev/null
+    resultInfo $? "${tomName} update result :";
 }
 
 #Uninstall
@@ -304,13 +304,13 @@ uninstall()
     if [[ -n ${pid} ]];then
         killTomcat ${tomName} >/dev/null
     fi
-    #移除
+    #remove
     if [ -d ${SERVER_HOME}/${tomName} ]; then
 	    rm -rf ${SERVER_HOME}/${tomName}
 	    resultInfo $? "${tomName} uninstall result :";
 	else
 	    echo -e "${RED}${tomName}does not exist. ${NC}"
-	fi
+    fi
 }
 
 
