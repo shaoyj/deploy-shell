@@ -2,24 +2,24 @@
 #Program:
 #          solid_server shell
 #descritopn
-#          远程初始化脚本
+#          Remote deployment script
 #
 #History
 #       2018/02/03
 #author
 #       ShaoYongJun
 
-#设置配置服务器地址
+#Set the configuration server address
 export CONF_DOMAIN=
 
-#红色
+#red
 export RED='\e[1;31m'
-#蓝色
+#blue
 export blue='\e[0;34m'
-#无色
+#colorless
 export NC='\e[0m'
 
-#校验 IP 地址
+#Verify the IP address
 check_ip()
 {
     local IP_ADDRESS=$1
@@ -35,24 +35,24 @@ check_ip()
 }
 
 
-#根据IP登录远程,执行命令
+#Log in remotely according to IP and execute the command
 remote_command()
 {
 #IP
 local ip_address=$(check_ip $1);
-#服务名称
+#service name
 local SERVER_NAME=$2
 #command name
 local COMMAND=$3
 #Whether to force an update
 local FORCE=$4
 
-#登录受信机器
+#Log in to the trusted machine
 ssh ${ip_address} <<SYJ
 if [[ ! -x ${HOME}/.deploy/bin/solid_client.sh ]]; then
-    #如果部署目录不存在则创建
+    #If the deployment directory does not exist then create
     [[ ! -d ${HOME}/.deploy/bin/ ]] && mkdir -p ${HOME}/.deploy/bin/
-    #下载
+    #download
     wget ${CONF_DOMAIN}/deploy/solid_client.sh  -O ${HOME}/.deploy/bin/solid_client.sh
     chmod 751 ${HOME}/.deploy/bin/solid_client.sh;
     #info
@@ -62,18 +62,18 @@ if [[ ! -x ${HOME}/.deploy/bin/solid_client.sh ]]; then
 		echo -e "${RED}${ip_address} Initialization result is [failed] ${NC}"
 	fi
 fi
-#执行脚本命令
+#Execute the script command
 ${HOME}/.deploy/bin/solid_client.sh ${SERVER_NAME} ${COMMAND} ${FORCE}
 exit
 SYJ
 }
 
-#校验是否是ROOT 用户
+#Verify whether it is a ROOT user
 if [[ "ROOT" == "$(echo $(whoami))" ]] ;then
     echo -e "${RED}ROOT users are prohibited from executing commands. ${NC}"
     exit 1
 else
-    #校验参数
+    #Check the parameters
     if [[ $# -lt 3 || $# -gt 4 ]]; then
         echo -e "${RED}you should do like this : $0 SERVER_IP SERVER_NAME -[init|status|start|stop|restart|update|uninstall] [-force] ${NC}"
         exit 1
