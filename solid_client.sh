@@ -15,10 +15,10 @@ source /etc/profile
 export SERVER_HOME=${HOME}
 
 #Configure the server address
-export CONF_DOMAIN=http://deploy.solidtracking.com
+export CONF_DOMAIN=conf_server_url
 
 #jar package store address
-export JAR_ADDRESS=http://deploy.solidtracking.com
+export JAR_ADDRESS=jar_adress_server_url
 
 
 #red
